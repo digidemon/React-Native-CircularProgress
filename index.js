@@ -23,6 +23,7 @@ var Filled = React.createClass({
       rotate = this.props.rotate >= 360 ? 360 : this.props.rotate,
       rightProgressBarColor = this.props.progressBarColor;
 
+
     if (rotate < 180) {
       rightProgressBarRotate = rotate;
       leftProgressBarRotate = 0;
@@ -60,7 +61,7 @@ var Filled = React.createClass({
       </View>);
 
     return (
-      <View style={{width: size, height: size, overflow: 'hidden', borderRadius: size/2}}>
+      <View style={{width: size, height: size, overflow:1, borderRadius: size/2}}>
         {leftProgressDisplay}
         {rightProgressDisplay}
       </View>
@@ -77,7 +78,7 @@ var Hollow = React.createClass({
     outlineWidth: React.PropTypes.number,
     outlineColor: React.PropTypes.string,
     rotate: React.PropTypes.number,
-    innerComponent: React.PropTypes.element
+    innerComponent: React.PropTypes.component
   },
   render(){
     var rotateValue = this.props.rotate >= 360 ? 360 : this.props.rotate;
@@ -90,32 +91,99 @@ var Hollow = React.createClass({
       outlineColor = this.props.outlineColor || 'transparent',
       leftRotate = 0, rightRotate = 0;
 
-    if (rotateValue < 180) {
-      rightRotate = rotateValue;
+    if(this.props.rotationDirection === 'left') {
+      if (rotateValue < 180) {
+        leftRotate = rotateValue;
+      } else {
+        rightRotate = rotateValue - 180;
+      }
     } else {
-      leftRotate = rotateValue - 180;
+      if (rotateValue < 180) {
+        rightRotate = rotateValue;
+      } else {
+        leftRotate = rotateValue - 180;
+      }
     }
-    var leftProgressBar = (
-      <View
-        style={{width: size, height: size, backgroundColor: 'transparent', position: 'absolute'}}
-        key="leftProgressBar"
-      >
+    
+    var innerView = this.props.innerComponent ? (
+      <View style={{width: size - progressBarWidth*2, height: size - progressBarWidth*2,
+        borderRadius: (size - progressBarWidth*2)/2,
+        overflow:1, backgroundColor: 'transparent',
+        position: 'absolute', left: progressBarWidth, top: progressBarWidth,
+        justifyContent: 'center', alignItems:'center'}}>
+        {this.props.innerComponent}
+      </View>
+    ) : (<View/>);
+
+    var views;
+    if(this.props.rotationDirection === 'left') {
+      var leftProgressBar = (
+        <View style={{width: size, height: size, backgroundColor: 'transparent', position: 'absolute'}}>
+        <View style={{width: size/2, height: size, left: size/2,
+          position: 'absolute', backgroundColor: 'transparent'}}/>
+
+          <View style={{width: size/2, height: size, position: 'absolute',
+          borderBottomLeftRadius: size/2, borderTopLeftRadius: size/2,
+          borderRightWidth: 0,backgroundColor: backgroundColor,
+          borderTopWidth: progressBarWidth, borderBottomWidth: progressBarWidth, borderLeftWidth: progressBarWidth,
+          borderLeftColor: progressBarColor, borderTopColor: progressBarColor, borderBottomColor: progressBarColor}}/>
+        </View>
+
+      );
+
+      var rightProgressBar = (
+        <View style={{width: size, height: size, backgroundColor: 'transparent', position: 'absolute'}}>
+
+          <View style={{width: size/2, height: size, position: 'absolute', left: size/2,
+          borderBottomRightRadius: size/2, borderTopRightRadius: size/2,
+          borderLeftWidth: 0, backgroundColor: backgroundColor,
+          borderTopWidth: progressBarWidth, borderBottomWidth: progressBarWidth, borderRightWidth: progressBarWidth,
+          borderRightColor: progressBarColor, borderTopColor: progressBarColor, borderBottomColor: progressBarColor}}/>
+
+          <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent'}}/>
+        </View>
+      );
+
+      var leftProgressOverlay = (
+          <View style={{width: size, height: size,position: 'absolute', backgroundColor: 'transparent',
+            transform: [{rotate: -leftRotate + 'deg'}]}}>
+            <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: backgroundColor}}/>
+            <View
+              style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent', left: size/2}}/>
+          </View>
+        );
+
+        var rightProgressOverlay = (
+          <View style={{width: size, height: size, position: 'absolute', backgroundColor: 'transparent',
+            transform: [{rotate: -rightRotate + 'deg'}]}}>
+            <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent'}}/>
+            <View
+              style={{width: size/2, height: size, position: 'absolute', backgroundColor: backgroundColor, left: size/2}}/>
+          </View>
+        );
+
+      if (rotateValue < 180) {
+        views = [leftProgressBar, leftProgressOverlay, rightProgressBar, rightProgressOverlay];
+      } else {
+        views = [rightProgressBar, rightProgressOverlay, leftProgressBar];
+      }
+    } else {
+      var leftProgressBar = (
+      <View style={{width: size, height: size, backgroundColor: 'transparent', position: 'absolute'}}>
         <View style={{width: size/2, height: size, position: 'absolute',
         borderBottomLeftRadius: size/2, borderTopLeftRadius: size/2,
         borderRightWidth: 0,backgroundColor: backgroundColor,
         borderTopWidth: progressBarWidth, borderBottomWidth: progressBarWidth, borderLeftWidth: progressBarWidth,
         borderLeftColor: progressBarColor, borderTopColor: progressBarColor, borderBottomColor: progressBarColor}}/>
 
-          <View style={{width: size/2, height: size, left: size/2,
+        <View style={{width: size/2, height: size, left: size/2,
         position: 'absolute', backgroundColor: backgroundColor}}/>
       </View>
+
     );
 
     var rightProgressBar = (
-      <View
-        style={{width: size, height: size, backgroundColor: 'transparent', position: 'absolute'}}
-        key="rightProgressBar"
-      >
+      <View style={{width: size, height: size, backgroundColor: 'transparent', position: 'absolute'}}>
         <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent'}}/>
 
         <View style={{width: size/2, height: size, position: 'absolute', left: size/2,
@@ -126,47 +194,34 @@ var Hollow = React.createClass({
       </View>
     );
 
-    var leftProgressOverlay = (
-      <View style={{width: size, height: size,position: 'absolute', backgroundColor: 'transparent',
-      transform: [{rotate: leftRotate + 'deg'}]}}
-            key="leftProgressOverlay"
-      >
-        <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: backgroundColor}}/>
-        <View
-          style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent', left: size/2}}/>
-      </View>
-    );
+      var leftProgressOverlay = (
+          <View style={{width: size, height: size,position: 'absolute', backgroundColor: 'transparent',
+            transform: [{rotate: leftRotate + 'deg'}]}}>
+            <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: backgroundColor}}/>
+            <View
+              style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent', left: size/2}}/>
+          </View>
+        );
 
-    var rightProgressOverlay = (
-      <View style={{width: size, height: size, position: 'absolute', backgroundColor: 'transparent',
-      transform: [{rotate: rightRotate + 'deg'}]}}
-          key="rightProgressOverlay"
-      >
-        <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent'}}/>
-        <View
-          style={{width: size/2, height: size, position: 'absolute', backgroundColor: backgroundColor, left: size/2}}/>
-      </View>
-    );
+        var rightProgressOverlay = (
+          <View style={{width: size, height: size, position: 'absolute', backgroundColor: 'transparent',
+            transform: [{rotate: rightRotate + 'deg'}]}}>
+            <View style={{width: size/2, height: size, position: 'absolute', backgroundColor: 'transparent'}}/>
+            <View
+              style={{width: size/2, height: size, position: 'absolute', backgroundColor: backgroundColor, left: size/2}}/>
+          </View>
+        );
 
-    var innerView = this.props.innerComponent ? (
-      <View style={{width: size - progressBarWidth*2, height: size - progressBarWidth*2,
-        borderRadius: (size - progressBarWidth*2)/2,
-        overflow: 'hidden', backgroundColor: 'transparent',
-        position: 'absolute', left: progressBarWidth, top: progressBarWidth,
-        justifyContent: 'center', alignItems:'center'}}>
-        {this.props.innerComponent}
-      </View>
-    ) : (<View/>);
-
-    var views;
-    if (rotateValue < 180) {
-      views = [leftProgressBar, leftProgressOverlay, rightProgressBar, rightProgressOverlay];
-    } else {
-      views = [leftProgressBar, leftProgressOverlay, rightProgressBar];
+      if (rotateValue < 180) {
+        views = [leftProgressBar, leftProgressOverlay, rightProgressBar, rightProgressOverlay];
+      } else {
+        views = [leftProgressBar, leftProgressOverlay, rightProgressBar];
+      }
     }
+    
     return (
       <View
-        style={{width: size + (outlineWidth * 2), height: size + (outlineWidth * 2), overflow: 'hidden',
+        style={{width: size + (outlineWidth * 2), height: size + (outlineWidth * 2), overflow:1,
         borderRadius: (size + (outlineWidth * 2))/2, borderWidth: outlineWidth, borderColor: outlineColor}}>
         {views}
         {innerView}
