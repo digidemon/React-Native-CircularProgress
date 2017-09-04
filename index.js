@@ -3,16 +3,17 @@
  */
 'use strict';
 
-var React = require('react-native');
+import React from 'react';
+import PropTypes from 'prop-types';
 
-var {View} = React;
+import {View} from 'react-native';
 
 var Filled = React.createClass({
   propTypes: {
-    size: React.PropTypes.number,
-    rotate: React.PropTypes.number,
-    componentColor: React.PropTypes.string,
-    progressColor: React.PropTypes.string
+    size: PropTypes.number,
+    rotate: PropTypes.number,
+    componentColor: PropTypes.string,
+    progressColor: PropTypes.string
   },
 
   render() {
@@ -71,14 +72,14 @@ var Filled = React.createClass({
 
 var Hollow = React.createClass({
   propTypes: {
-    size: React.PropTypes.number,
-    progressBarWidth: React.PropTypes.number,
-    backgroundColor: React.PropTypes.string,
-    progressBarColor: React.PropTypes.string,
-    outlineWidth: React.PropTypes.number,
-    outlineColor: React.PropTypes.string,
-    rotate: React.PropTypes.number,
-    innerComponent: React.PropTypes.component
+    size: PropTypes.number,
+    progressBarWidth: PropTypes.number,
+    backgroundColor: PropTypes.string,
+    progressBarColor: PropTypes.string,
+    outlineWidth: PropTypes.number,
+    outlineColor: PropTypes.string,
+    rotate: PropTypes.number,
+    innerComponent: PropTypes.component
   },
   render(){
     var rotateValue = this.props.rotate >= 360 ? 360 : this.props.rotate;
